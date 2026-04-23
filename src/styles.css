@@ -1,190 +1,71 @@
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-glow: var(--primary-glow);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-surface: var(--surface);
-  --color-surface-elevated: var(--surface-elevated);
-
-  --font-display: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
-
-  --shadow-glow: 0 0 40px -10px var(--primary);
-  --shadow-glow-strong: 0 0 60px -5px var(--primary);
-  --shadow-card: 0 4px 24px -8px oklch(0 0 0 / 0.6);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* Cyber-Automotive Dark Theme — primary palette */
-  --radius: 0.75rem;
-
-  --background: oklch(0.14 0.02 250);
-  --foreground: oklch(0.97 0.01 240);
-
-  --surface: oklch(0.18 0.025 250);
-  --surface-elevated: oklch(0.22 0.03 250);
-
-  --card: oklch(0.18 0.025 250);
-  --card-foreground: oklch(0.97 0.01 240);
-  --popover: oklch(0.18 0.025 250);
-  --popover-foreground: oklch(0.97 0.01 240);
-
-  /* Electric Blue */
-  --primary: oklch(0.72 0.20 240);
-  --primary-foreground: oklch(0.10 0.02 250);
-  --primary-glow: oklch(0.78 0.22 235);
-
-  --secondary: oklch(0.25 0.03 250);
-  --secondary-foreground: oklch(0.97 0.01 240);
-
-  --muted: oklch(0.22 0.025 250);
-  --muted-foreground: oklch(0.65 0.02 250);
-
-  --accent: oklch(0.30 0.05 240);
-  --accent-foreground: oklch(0.97 0.01 240);
-
-  --destructive: oklch(0.65 0.24 22);
-  --destructive-foreground: oklch(0.98 0.01 240);
-
-  --success: oklch(0.72 0.18 150);
-  --success-foreground: oklch(0.10 0.02 250);
-
-  --warning: oklch(0.78 0.17 75);
-  --warning-foreground: oklch(0.10 0.02 250);
-
-  --border: oklch(0.28 0.03 250);
-  --input: oklch(0.25 0.03 250);
-  --ring: oklch(0.72 0.20 240);
-
-  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --gradient-surface: linear-gradient(180deg, var(--surface-elevated), var(--surface));
-  --gradient-glow: radial-gradient(circle at 50% 0%, oklch(0.72 0.20 240 / 0.15), transparent 60%);
-}
-
-.dark {
-  /* same palette — app is dark-only */
-  --background: oklch(0.14 0.02 250);
-  --foreground: oklch(0.97 0.01 240);
+  /* تعريف تدرجات البنفسجي مباشرة هنا */
+  --background: #0a0510;
+  --primary: #8b5cf6;
+  --accent: #d946ef;
+  --card-bg: rgba(28, 14, 55, 0.8);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
-  html {
-    font-family: var(--font-display);
-  }
-
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    background-image:
-      radial-gradient(circle at 20% 0%, oklch(0.72 0.20 240 / 0.08), transparent 50%),
-      radial-gradient(circle at 80% 100%, oklch(0.78 0.22 235 / 0.06), transparent 50%);
-    background-attachment: fixed;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  }
-
-  /* Subtle grid backdrop */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(oklch(0.72 0.20 240 / 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.72 0.20 240 / 0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-    mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+    background-color: var(--background);
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    /* خلفية متدرجة انسيابية */
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(217, 70, 239, 0.1) 0%, transparent 50%);
+    min-height: 100vh;
   }
 }
 
-@layer utilities {
-  .glass {
-    background: oklch(0.18 0.025 250 / 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid oklch(0.72 0.20 240 / 0.12);
+@layer components {
+  /* تصميم الكروت الثلاثي الأبعاد */
+  .card-3d {
+    @apply backdrop-blur-xl border border-white/10 rounded-[2rem] transition-all duration-500;
+    background: linear-gradient(135deg, rgba(40, 20, 75, 0.7), rgba(15, 5, 30, 0.9));
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.6),
+      inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    transform: perspective(1200px) rotateX(2deg);
   }
 
-  .glow-primary {
-    box-shadow: var(--shadow-glow);
+  .card-3d:hover {
+    transform: perspective(1200px) rotateX(0deg) translateY(-10px) scale(1.02);
+    @apply border-purple-500/40;
+    box-shadow: 0 30px 60px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
   }
 
-  .glow-text {
-    text-shadow: 0 0 20px oklch(0.72 0.20 240 / 0.6);
+  /* تأثير النصوص النيون */
+  .text-glow {
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
   }
 
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  /* تخصيص السكرول بار ليناسب التصميم */
+  ::-webkit-scrollbar {
+    width: 6px;
   }
+  ::-webkit-scrollbar-track {
+    background: #0a0510;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2d1b4d;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8b5cf6;
+  }
+}
 
-  .scanline {
-    position: relative;
-    overflow: hidden;
-  }
-  .scanline::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      oklch(0.72 0.20 240 / 0.08) 50%,
-      transparent 100%
-    );
-    animation: scan 3s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes scan {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.20 240 / 0.6); }
-    50% { box-shadow: 0 0 0 12px oklch(0.72 0.20 240 / 0); }
-  }
-
-  .pulse-glow {
-    animation: pulse-glow 2s ease-out infinite;
-  }
+/* تحريك الأيقونات لإعطاء حيوية */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
