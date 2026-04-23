@@ -1,71 +1,50 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-:root {
-  /* تعريف تدرجات البنفسجي مباشرة هنا */
-  --background: #0a0510;
-  --primary: #8b5cf6;
-  --accent: #d946ef;
-  --card-bg: rgba(28, 14, 55, 0.8);
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0510;
+  --color-foreground: #ffffff;
+  --color-primary: #8b5cf6;
+  --color-primary-foreground: #ffffff;
+  --color-primary-glow: #a78bfa;
+  --color-accent: #d946ef;
+  --color-accent-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-muted: #1c0e37;
+  --color-muted-foreground: #a1a1aa;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-warning: #f59e0b;
+  --color-success: #10b981;
+  --color-card: rgba(28, 14, 55, 0.8);
+  --color-surface: rgba(40, 20, 75, 0.5);
+  --color-ring: #8b5cf6;
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-secondary: #2d1b4d;
+  --color-secondary-foreground: #ffffff;
 }
 
-@layer base {
-  body {
-    background-color: var(--background);
-    color: #ffffff;
-    -webkit-font-smoothing: antialiased;
-    /* خلفية متدرجة انسيابية */
-    background-image: 
-      radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 100% 100%, rgba(217, 70, 239, 0.1) 0%, transparent 50%);
-    min-height: 100vh;
+@layer utilities {
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
   }
-}
-
-@layer components {
-  /* تصميم الكروت الثلاثي الأبعاد */
-  .card-3d {
-    @apply backdrop-blur-xl border border-white/10 rounded-[2rem] transition-all duration-500;
-    background: linear-gradient(135deg, rgba(40, 20, 75, 0.7), rgba(15, 5, 30, 0.9));
-    box-shadow: 
-      0 20px 40px rgba(0, 0, 0, 0.6),
-      inset 0 1px 2px rgba(255, 255, 255, 0.1);
-    transform: perspective(1200px) rotateX(2deg);
-  }
-
-  .card-3d:hover {
-    transform: perspective(1200px) rotateX(0deg) translateY(-10px) scale(1.02);
-    @apply border-purple-500/40;
-    box-shadow: 0 30px 60px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
-  }
-
-  /* تأثير النصوص النيون */
-  .text-glow {
+  .glow-text {
     text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
   }
-
-  /* تخصيص السكرول بار ليناسب التصميم */
-  ::-webkit-scrollbar {
-    width: 6px;
+  .text-gradient {
+    background: linear-gradient(135deg, #8b5cf6, #d946ef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  ::-webkit-scrollbar-track {
-    background: #0a0510;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #2d1b4d;
-    border-radius: 10px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #8b5cf6;
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
   }
 }
 
-/* تحريك الأيقونات لإعطاء حيوية */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 15px currentColor; }
 }
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
+```
