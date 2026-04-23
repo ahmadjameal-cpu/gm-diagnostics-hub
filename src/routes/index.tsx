@@ -1,254 +1,188 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Gauge } from "@/components/elite/Gauge";
-import { useMockTelemetry } from "@/hooks/use-mock-telemetry";
-import { appStore, useAppState } from "@/lib/app-store";
-import { connectElm327, isWebBluetoothSupported } from "@/lib/obd2";
-import {
-  Activity,
-  Bluetooth,
-  Car,
-  Cpu,
-  Droplets,
-  Gauge as GaugeIcon,
-  ScanLine,
-  Thermometer,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
+import React, { useState } from 'react';
+import { 
+  Bluetooth, 
+  Car, 
+  Activity, 
+  AlertTriangle, 
+  Gauge, 
+  ShieldAlert,
+  ChevronRight,
+  Wrench,
+  Wifi
+} from 'lucide-react';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Live Dashboard — EliteScan" },
-      {
-        name: "description",
-        content:
-          "Real-time OBD2 telemetry dashboard for GM vehicles. RPM, speed, coolant temperature, and fuel trim with live animated gauges.",
-      },
-    ],
-  }),
-  component: DashboardPage,
-});
+// قاعدة بيانات أعطال GM المتخصصة مع الشرح
+const GM_CODES_DB = {
+  "P0300": {
+    name: "Random Misfire Detected",
+    arName: "اختلال احتراق عشوائي",
+    desc: "المحرك يواجه صعوبة في إتمام عملية الاحتراق في عدة اسطوانات بشكل غير منتظم.",
+    fix: "افحص شمعات الاحتراق (البواجي) وأسلاك الكويلات، وتأكد من ضغط الوقود."
+  },
+  "P1101": {
+    name: "Intake Air Flow System Performance",
+    arName: "أداء تدفق هواء السحب (خاص بـ GM)",
+    desc: "حساس الهواء يقرأ قيم خارج النطاق المتوقع، غالباً بسبب اتساخ البوابة.",
+    fix: "قم بتنظيف بوابة الهواء (Throttle Body) وحساس الـ MAF."
+  },
+  "P0420": {
+    name: "Catalyst System Efficiency",
+    arName: "كفاءة دبة التلوث منخفضة",
+    desc: "علبة البيئة لا تقوم بوظيفتها في تنقية العادم بشكل كامل.",
+    fix: "تأكد من عدم وجود تسريب في العادم أو استبدل دبة التلوث إذا كانت منسدة."
+  },
+  "P0700": {
+    name: "Transmission Control System",
+    arName: "عطل في نظام القير",
+    desc: "وحدة التحكم في المحرك تلقت إشارة بوجود عطل في ناقل الحركة.",
+    fix: "يجب فحص كمبيوتر القير (TCM) لتحديد الحساس أو الصمام المعطل."
+  }
+};
 
-function DashboardPage() {
-  const { status, demoMode, errorMessage } = useAppState();
-  const live = useMockTelemetry(demoMode);
+const Index = () => {
+  const [connected, setConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [codes, setCodes] = useState<string[]>([]);
 
-  const handleConnect = async () => {
-    appStore.setDemoMode(false);
-    appStore.setStatus("searching");
-    try {
-      appStore.setStatus("connecting");
-      await connectElm327();
-      appStore.setStatus("connected");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unknown Bluetooth error";
-      appStore.setStatus("error", msg);
-    }
+  const handleConnect = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setConnected(!connected);
+      setLoading(false);
+      if (!connected) setCodes(["P0300", "P1101"]);
+    }, 1500);
   };
 
-  const toggleDemo = () => appStore.setDemoMode(!demoMode);
-
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
-      {/* Hero strip */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative mb-8 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface-elevated via-surface to-background p-6 sm:p-8"
-      >
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
-              <Car className="h-3 w-3" /> GM Specialized · Chevy · GMC · Cadillac · Buick
-            </div>
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Your GM, <span className="text-gradient">decoded in real time.</span>
-            </h1>
-            <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-              EliteScan turns your ELM327 Bluetooth adapter into a professional diagnostic
-              terminal — with deep manufacturer-specific code intelligence built for GM trucks,
-              SUVs, and sedans.
-            </p>
+    <div className="min-h-screen p-4 md:p-10 flex flex-col items-center">
+      
+      {/* Top Navigation / Header */}
+      <nav className="w-full max-w-6xl flex justify-between items-center mb-16 card-3d p-6">
+        <div className="flex items-center gap-4 animate-float">
+          <div className="p-3 bg-purple-500/20 rounded-2xl border border-purple-500/30">
+            <Car className="text-purple-400 w-8 h-8" />
           </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            <button
-              onClick={handleConnect}
-              disabled={!isWebBluetoothSupported()}
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-glow px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground glow-primary transition-transform hover:scale-[1.02] disabled:opacity-50"
-            >
-              <Bluetooth className="h-4 w-4" />
-              Connect Device
-            </button>
-            <button
-              onClick={toggleDemo}
-              className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
-                demoMode
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : "border-border bg-surface text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Activity className="h-4 w-4" />
-              {demoMode ? "Demo: ON" : "Demo Mode"}
-            </button>
-          </div>
-        </div>
-
-        {errorMessage && (
-          <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
-            {errorMessage}
-          </div>
-        )}
-        {!isWebBluetoothSupported() && (
-          <div className="mt-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
-            Web Bluetooth isn't available in this browser. Use Chrome on Android, macOS, or
-            desktop, or stay in Demo Mode to explore.
-          </div>
-        )}
-      </motion.section>
-
-      {/* Gauges */}
-      <section className="mb-8">
-        <SectionHeading icon={<GaugeIcon className="h-4 w-4" />} title="Live Telemetry" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <GaugeCard>
-            <Gauge
-              label="Engine RPM"
-              value={live.rpm}
-              unit="× 1000"
-              min={0}
-              max={8000}
-              warnAt={5500}
-              dangerAt={6800}
-              icon={<Cpu className="h-3 w-3" />}
-              precision={0}
-            />
-          </GaugeCard>
-          <GaugeCard>
-            <Gauge
-              label="Vehicle Speed"
-              value={live.speed}
-              unit="km/h"
-              min={0}
-              max={220}
-              warnAt={140}
-              dangerAt={180}
-              icon={<TrendingUp className="h-3 w-3" />}
-            />
-          </GaugeCard>
-          <GaugeCard>
-            <Gauge
-              label="Coolant Temp"
-              value={live.coolantTemp}
-              unit="°C"
-              min={0}
-              max={130}
-              warnAt={105}
-              dangerAt={115}
-              icon={<Thermometer className="h-3 w-3" />}
-              precision={1}
-            />
-          </GaugeCard>
-          <GaugeCard>
-            <Gauge
-              label="Fuel Trim ST"
-              value={live.fuelTrim}
-              unit="%"
-              min={-25}
-              max={25}
-              warnAt={10}
-              dangerAt={15}
-              icon={<Droplets className="h-3 w-3" />}
-              precision={1}
-            />
-          </GaugeCard>
-        </div>
-      </section>
-
-      {/* Secondary readouts */}
-      <section className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Stat label="Battery" value={`${live.voltage.toFixed(2)} V`} icon={<Zap />} />
-        <Stat label="Engine Load" value={`${live.load} %`} icon={<Activity />} />
-        <Stat
-          label="Status"
-          value={demoMode ? "Demo" : status === "connected" ? "Live" : "Offline"}
-          icon={<Bluetooth />}
-        />
-        <Stat label="Protocol" value="ISO 15765-4" icon={<Cpu />} />
-      </section>
-
-      {/* CTA to scan */}
-      <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="scanline relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-surface to-surface p-6 sm:p-8"
-      >
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-xl font-bold text-foreground sm:text-2xl">
-              Ready to read fault codes?
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Scan your GM vehicle's ECM for active and pending DTCs with intelligent fix
-              suggestions.
-            </p>
+            <h1 className="text-2xl font-black tracking-widest text-white text-glow">GM SCANNER</h1>
+            <p className="text-[10px] text-purple-400 font-bold tracking-[0.2em] uppercase">V2.0 Bluetooth Elite</p>
           </div>
-          <Link
-            to="/scan"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-glow px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground glow-primary transition-transform hover:scale-[1.02]"
-          >
-            <ScanLine className="h-4 w-4" />
-            Run Diagnostic
-          </Link>
         </div>
-      </motion.section>
-    </div>
-  );
-}
 
-function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
-  return (
-    <div className="mb-4 flex items-center gap-2">
-      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-        {icon}
+        <button 
+          onClick={handleConnect}
+          className={`px-6 py-3 rounded-xl font-bold flex items-center gap-3 transition-all ${
+            connected 
+            ? 'bg-green-500/20 text-green-400 border border-green-500/40 shadow-[0_0_15px_rgba(34,197,94,0.3)]' 
+            : 'bg-purple-600 text-white hover:bg-purple-500 shadow-lg'
+          }`}
+        >
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <Bluetooth size={18} />
+              {connected ? "Device Connected" : "Connect OBD2"}
+            </>
+          )}
+        </button>
+      </nav>
+
+      {/* Main Stats Grid */}
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {[
+          { label: "Engine RPM", value: connected ? "840" : "0", unit: "RPM", icon: <Gauge className="text-purple-400" /> },
+          { label: "Coolant Temp", value: connected ? "94" : "0", unit: "°C", icon: <Activity className="text-pink-400" /> },
+          { label: "Voltage", value: connected ? "14.1" : "0", unit: "V", icon: <Wifi className="text-blue-400" /> },
+        ].map((item, i) => (
+          <div key={i} className="card-3d p-8 flex flex-col items-center text-center">
+            <div className="mb-4 p-3 bg-white/5 rounded-full">{item.icon}</div>
+            <span className="text-xs font-bold text-purple-300/60 uppercase tracking-widest mb-1">{item.label}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-black text-white">{item.value}</span>
+              <span className="text-xs text-purple-400">{item.unit}</span>
+            </div>
+          </div>
+        ))}
       </div>
-      <h2 className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-foreground">
-        {title}
-      </h2>
-      <div className="ml-2 h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-    </div>
-  );
-}
 
-function GaugeCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="glass relative overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-[0_0_30px_-10px_var(--primary)]">
-      {children}
-    </div>
-  );
-}
+      {/* Diagnostics Section */}
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 gap-8">
+        
+        {/* Left Side: Control Panel */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card-3d p-8">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <ShieldAlert className="text-purple-400" /> Control Center
+            </h3>
+            <p className="text-sm text-purple-200/50 mb-6">قم ببدء فحص شامل لجميع وحدات GM الإلكترونية والحصول على تقرير مفصل.</p>
+            <button 
+              disabled={!connected}
+              className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-black tracking-wider hover:opacity-90 transition-all disabled:opacity-20 shadow-xl"
+            >
+              START FULL SCAN
+            </button>
+          </div>
 
-function Stat({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card/60 p-4 backdrop-blur">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <div className="text-primary [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em]">{label}</span>
+          <div className="card-3d p-6 bg-purple-900/20!">
+             <div className="flex items-center gap-3 text-xs font-mono text-purple-400/80">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                System Status: Ready for GM Protocols
+             </div>
+          </div>
+        </div>
+
+        {/* Right Side: Fault Codes Display */}
+        <div className="lg:col-span-3 card-3d p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-xl font-bold">Detected Faults</h3>
+            <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-xs font-bold text-purple-300">
+              {codes.length} Codes Found
+            </span>
+          </div>
+
+          <div className="space-y-6">
+            {codes.length > 0 ? (
+              codes.map((code) => {
+                const data = GM_CODES_DB[code as keyof typeof GM_CODES_DB];
+                return (
+                  <div key={code} className="group bg-white/5 border border-white/5 rounded-2xl p-6 hover:bg-purple-500/5 transition-colors">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="flex flex-col items-center justify-center bg-purple-600/20 border border-purple-600/30 w-full md:w-24 h-20 rounded-xl">
+                        <span className="text-xl font-black text-purple-400">{code}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-bold text-lg text-white">{data.arName}</h4>
+                          <ChevronRight className="text-purple-900 group-hover:text-purple-400 transition-colors" />
+                        </div>
+                        <p className="text-sm text-purple-200/60 mb-4">{data.desc}</p>
+                        <div className="bg-purple-500/10 p-4 rounded-xl flex gap-3 border-l-4 border-purple-500">
+                          <Wrench className="text-purple-400 w-5 h-5 flex-shrink-0" />
+                          <p className="text-xs leading-relaxed text-purple-100/80">
+                            <span className="font-bold text-purple-400 block mb-1">الحل المقترح:</span>
+                            {data.fix}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 opacity-20 border-2 border-dashed border-purple-500/20 rounded-3xl">
+                <AlertTriangle size={48} className="mb-4" />
+                <p>No active faults. Vehicle system is clear.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="mt-2 font-mono text-lg font-bold text-foreground tabular-nums">{value}</div>
+
+      <footer className="mt-16 text-[10px] uppercase tracking-[0.5em] text-purple-500/40 font-bold">
+        AJ Technical Industries • 2026
+      </footer>
     </div>
   );
-}
+};
+
+export default Index;
