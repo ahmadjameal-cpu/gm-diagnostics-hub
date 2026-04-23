@@ -1,48 +1,84 @@
-
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --color-background: #0a0510;
-  --color-foreground: #ffffff;
   --color-primary: #8b5cf6;
-  --color-primary-foreground: #ffffff;
-  --color-primary-glow: #a78bfa;
   --color-accent: #d946ef;
-  --color-accent-foreground: #ffffff;
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-muted: #1c0e37;
-  --color-muted-foreground: #a1a1aa;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
-  --color-warning: #f59e0b;
-  --color-success: #10b981;
-  --color-card: rgba(28, 14, 55, 0.8);
-  --color-surface: rgba(40, 20, 75, 0.5);
-  --color-ring: #8b5cf6;
-  --color-input: rgba(255, 255, 255, 0.1);
-  --color-secondary: #2d1b4d;
-  --color-secondary-foreground: #ffffff;
 }
 
-@layer utilities {
+:root {
+  --background: #0a0510;
+  --primary: #8b5cf6;
+  --accent: #d946ef;
+  --card-bg: rgba(28, 14, 55, 0.8);
+}
+
+:root {
+  /* الألوان الأساسية */
+  --background: #0a0510;
+  --foreground: #ffffff;
+  --card: rgba(28, 14, 55, 0.8);
+  --card-foreground: #ffffff;
+  --surface: rgba(40, 20, 75, 0.5);
+  
+  /* الألوان الرئيسية */
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --primary-glow: #a78bfa;
+  
+  /* الألوان الثانوية */
+  --secondary: #d946ef;
+  --secondary-foreground: #ffffff;
+  --accent: #d946ef;
+  --accent-foreground: #ffffff;
+  
+  /* ألوان الحالات */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  
+  /* ألوان مساعدة */
+  --muted: #1e1b3a;
+  --muted-foreground: #9ca3af;
+  --border: rgba(139, 92, 246, 0.2);
+  --input: rgba(139, 92, 246, 0.15);
+  --ring: #8b5cf6;
+  
+  /* نصف القطر */
+  --radius: 0.75rem;
+} 
+@layer components {
   .glow-primary {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
   }
+  
   .glow-text {
     text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
   }
+  
   .text-gradient {
     background: linear-gradient(135deg, #8b5cf6, #d946ef);
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
+  
   .pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
   }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px currentColor; }
-  50% { box-shadow: 0 0 15px currentColor; }
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% { 
+    opacity: 0.8;
+    box-shadow: 0 0 0 6px transparent;
+  }
 }
